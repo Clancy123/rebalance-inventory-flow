@@ -1,12 +1,15 @@
 
-import { Bell, User } from "lucide-react";
+import { Bell, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface DashboardHeaderProps {
   currentPage: string;
 }
 
 export function DashboardHeader({ currentPage }: DashboardHeaderProps) {
+  const { toggleSidebar } = useSidebar();
+
   const getPageTitle = (page: string) => {
     const titles: Record<string, string> = {
       dashboard: "Dashboard",
@@ -26,13 +29,24 @@ export function DashboardHeader({ currentPage }: DashboardHeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
-        <div>
-          <nav className="text-sm text-gray-500 mb-1">
-            {getBreadcrumb(currentPage)}
-          </nav>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {getPageTitle(currentPage)}
-          </h1>
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="p-2 hover:bg-gray-100"
+          >
+            <Menu className="w-5 h-5 text-gray-600" />
+          </Button>
+          
+          <div>
+            <nav className="text-sm text-gray-500 mb-1">
+              {getBreadcrumb(currentPage)}
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {getPageTitle(currentPage)}
+            </h1>
+          </div>
         </div>
         
         <div className="flex items-center space-x-4">
