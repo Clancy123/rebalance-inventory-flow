@@ -37,13 +37,14 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ currentPage, onPageChange }: AppSidebarProps) {
-  const { collapsed, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className={`${collapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-gray-200 bg-white`}>
+    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} transition-all duration-300 border-r border-gray-200 bg-white`}>
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          {!collapsed && (
+          {!isCollapsed && (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Package className="w-5 h-5 text-white" />
@@ -55,7 +56,7 @@ export function AppSidebar({ currentPage, onPageChange }: AppSidebarProps) {
             onClick={toggleSidebar}
             className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            {collapsed ? (
+            {isCollapsed ? (
               <ChevronRight className="w-4 h-4 text-gray-600" />
             ) : (
               <ChevronLeft className="w-4 h-4 text-gray-600" />
@@ -81,7 +82,7 @@ export function AppSidebar({ currentPage, onPageChange }: AppSidebarProps) {
                     <item.icon className={`w-5 h-5 ${
                       currentPage === item.id ? "text-blue-600" : "text-gray-500"
                     }`} />
-                    {!collapsed && <span className="font-medium">{item.title}</span>}
+                    {!isCollapsed && <span className="font-medium">{item.title}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
