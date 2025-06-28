@@ -3,6 +3,11 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Dashboard } from "@/components/Dashboard";
+import { InventoryOverview } from "@/components/InventoryOverview";
+import { Forecasts } from "@/components/Forecasts";
+import { TransferSuggestions } from "@/components/TransferSuggestions";
+import { MapView } from "@/components/MapView";
+import { Settings } from "@/components/Settings";
 import { useState } from "react";
 
 const Index = () => {
@@ -13,15 +18,15 @@ const Index = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'inventory':
-        return <div className="p-6">Inventory Overview (Coming Soon)</div>;
+        return <InventoryOverview />;
       case 'forecasts':
-        return <div className="p-6">Forecasts (Coming Soon)</div>;
+        return <Forecasts />;
       case 'transfers':
-        return <div className="p-6">Transfer Suggestions (Coming Soon)</div>;
+        return <TransferSuggestions />;
       case 'map':
-        return <div className="p-6">Map View (Coming Soon)</div>;
+        return <MapView />;
       case 'settings':
-        return <div className="p-6">Settings (Coming Soon)</div>;
+        return <Settings />;
       default:
         return <Dashboard />;
     }
