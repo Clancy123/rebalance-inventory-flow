@@ -1,7 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Gear, Upload } from "lucide-react";
+import { Cog, Upload } from "lucide-react";
 
 export function MLSettings() {
   return (
@@ -77,7 +76,7 @@ export function MLSettings() {
       </Card>
 
       <div className="text-center py-20">
-        <Gear className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <Cog className="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h2 className="text-xl font-semibold text-gray-600 mb-2">Advanced ML Configuration Coming Soon</h2>
         <p className="text-gray-500">Model selection, hyperparameter tuning, and A/B testing capabilities.</p>
       </div>

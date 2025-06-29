@@ -14,7 +14,7 @@ import {
   Archive,
   Users,
   Bell,
-  Gear
+  Cog
 } from "lucide-react";
 
 import {
@@ -37,7 +37,7 @@ const items = [
   { id: 'transfer-history', title: "Transfer History", icon: History },
   { id: 'sku-management', title: "SKU Management", icon: Archive },
   { id: 'user-management', title: "User Management", icon: Users },
-  { id: 'ml-settings', title: "ML Settings", icon: Gear },
+  { id: 'ml-settings', title: "ML Settings", icon: Cog },
   { id: 'alerts', title: "Alerts & Notifications", icon: Bell },
   { id: 'map', title: "Map View", icon: MapPin },
   { id: 'settings', title: "Settings", icon: Settings },
