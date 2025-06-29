@@ -8,6 +8,12 @@ import { Forecasts } from "@/components/Forecasts";
 import { TransferSuggestions } from "@/components/TransferSuggestions";
 import { MapView } from "@/components/MapView";
 import { Settings } from "@/components/Settings";
+import { Insights } from "@/components/Insights";
+import { TransferHistory } from "@/components/TransferHistory";
+import { SKUManagement } from "@/components/SKUManagement";
+import { UserManagement } from "@/components/UserManagement";
+import { MLSettings } from "@/components/MLSettings";
+import { Alerts } from "@/components/Alerts";
 import { useState } from "react";
 
 const Index = () => {
@@ -23,6 +29,18 @@ const Index = () => {
         return <Forecasts />;
       case 'transfers':
         return <TransferSuggestions />;
+      case 'insights':
+        return <Insights />;
+      case 'transfer-history':
+        return <TransferHistory />;
+      case 'sku-management':
+        return <SKUManagement />;
+      case 'user-management':
+        return <UserManagement />;
+      case 'ml-settings':
+        return <MLSettings />;
+      case 'alerts':
+        return <Alerts />;
       case 'map':
         return <MapView />;
       case 'settings':
