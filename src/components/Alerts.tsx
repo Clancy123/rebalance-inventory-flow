@@ -3,9 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, AlertTriangle, Info } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export function Alerts() {
-  const alerts = [
+  const { toast } = useToast();
+  const [alerts, setAlerts] = useState([
     {
       id: 1,
       type: "warning",
@@ -22,7 +25,7 @@ export function Alerts() {
       timestamp: "1 hour ago",
       sku: "B456"
     }
-  ];
+  ]);
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -46,11 +49,33 @@ export function Alerts() {
     }
   };
 
+  const handleView = (alert: any) => {
+    toast({
+      title: "Alert Details",
+      description: `Viewing full details for alert: ${alert.title}`,
+    });
+  };
+
+  const handleDismiss = (alertId: number) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    toast({
+      title: "Alert Dismissed",
+      description: "Alert has been removed from your notifications",
+    });
+  };
+
+  const handleMarkAllRead = () => {
+    toast({
+      title: "All Alerts Marked as Read",
+      description: "All notifications have been marked as read",
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Alerts & Notifications</h1>
-        <Button variant="outline">Mark All Read</Button>
+        <Button variant="outline" onClick={handleMarkAllRead}>Mark All Read</Button>
       </div>
 
       <Card>
@@ -71,8 +96,20 @@ export function Alerts() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">{alert.timestamp}</span>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">View</Button>
-                      <Button size="sm" variant="outline">Dismiss</Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleView(alert)}
+                      >
+                        View
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDismiss(alert.id)}
+                      >
+                        Dismiss
+                      </Button>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const inventoryData = [
   {
@@ -51,14 +53,56 @@ const inventoryData = [
 ];
 
 export function InventoryTable() {
+  const { toast } = useToast();
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
+
+  const handleDetails = (item: any, index: number) => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+    
+    setTimeout(() => {
+      toast({
+        title: "Item Details",
+        description: `Viewing details for ${item.sku} at ${item.storeName}`,
+      });
+      setLoadingStates(prev => ({ ...prev, [index]: false }));
+    }, 1000);
+  };
+
+  const handleTransferAction = (item: any, index: number) => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+    
+    setTimeout(() => {
+      const action = item.status === 'deficit' ? 'Transfer Request' : 'Transfer Suggestion';
+      toast({
+        title: `${action} Created`,
+        description: `${action} for ${item.sku} has been submitted for review`,
+      });
+      setLoadingStates(prev => ({ ...prev, [index]: false }));
+    }, 1500);
+  };
+
+  const handleFilter = () => {
+    toast({
+      title: "Filter Applied",
+      description: "Inventory filters have been updated",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Export Started",
+      description: "Inventory data is being exported to CSV",
+    });
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">Inventory Overview</h3>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">Filter</Button>
-            <Button variant="outline" size="sm">Export</Button>
+            <Button variant="outline" size="sm" onClick={handleFilter}>Filter</Button>
+            <Button variant="outline" size="sm" onClick={handleExport}>Export</Button>
           </div>
         </div>
       </div>
@@ -115,7 +159,14 @@ export function InventoryTable() {
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm">Details</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDetails(item, index)}
+                      disabled={loadingStates[index]}
+                    >
+                      {loadingStates[index] ? 'Loading...' : 'Details'}
+                    </Button>
                     {item.status !== 'balanced' && (
                       <Button 
                         size="sm"
@@ -124,8 +175,11 @@ export function InventoryTable() {
                             ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                             : 'bg-green-600 hover:bg-green-700 text-white'
                         }
+                        onClick={() => handleTransferAction(item, index)}
+                        disabled={loadingStates[index]}
                       >
-                        {item.status === 'deficit' ? 'Request Transfer' : 'Suggest Transfer'}
+                        {loadingStates[index] ? 'Processing...' : 
+                         (item.status === 'deficit' ? 'Request Transfer' : 'Suggest Transfer')}
                       </Button>
                     )}
                   </div>

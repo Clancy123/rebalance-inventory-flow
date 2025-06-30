@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Package, TrendingUp, TrendingDown, CheckCircle, Search, Filter } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const inventoryStats = [
   { title: "Total SKUs", value: "1,247", icon: Package, color: "blue" },
@@ -29,6 +29,8 @@ export function InventoryOverview() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>({});
+  const { toast } = useToast();
 
   const filteredData = inventoryData.filter(item => {
     const matchesSearch = item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -49,6 +51,37 @@ export function InventoryOverview() {
     } else {
       return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Balanced</Badge>;
     }
+  };
+
+  const handleDetails = (item: any, index: number) => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+    
+    setTimeout(() => {
+      toast({
+        title: "Product Details",
+        description: `Viewing details for ${item.productName} (${item.sku}) at ${item.store}`,
+      });
+      setLoadingStates(prev => ({ ...prev, [index]: false }));
+    }, 1000);
+  };
+
+  const handleTransfer = (item: any, index: number) => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+    
+    setTimeout(() => {
+      toast({
+        title: "Transfer Initiated",
+        description: `Transfer request for ${item.productName} has been submitted`,
+      });
+      setLoadingStates(prev => ({ ...prev, [index]: false }));
+    }, 1500);
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Export Started",
+      description: "Detailed inventory report is being generated",
+    });
   };
 
   return (
@@ -117,7 +150,7 @@ export function InventoryOverview() {
                   <SelectItem value="Outerwear">Outerwear</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
                 <Filter className="w-4 h-4" />
                 Export
               </Button>
@@ -168,10 +201,22 @@ export function InventoryOverview() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Details</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDetails(item, index)}
+                          disabled={loadingStates[index]}
+                        >
+                          {loadingStates[index] ? 'Loading...' : 'Details'}
+                        </Button>
                         {item.status !== 'balanced' && (
-                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                            Transfer
+                          <Button 
+                            size="sm" 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => handleTransfer(item, index)}
+                            disabled={loadingStates[index]}
+                          >
+                            {loadingStates[index] ? 'Processing...' : 'Transfer'}
                           </Button>
                         )}
                       </div>
