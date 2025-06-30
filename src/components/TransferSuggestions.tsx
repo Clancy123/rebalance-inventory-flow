@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRightLeft, Truck, MapPin, Clock, CheckCircle, XCircle, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const transferSuggestions = [
+const initialTransferSuggestions = [
   {
     id: "T001",
     fromStore: "Seattle-Pike",
@@ -92,10 +92,12 @@ const transferSuggestions = [
 ];
 
 export function TransferSuggestions() {
+  const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTransfers, setSelectedTransfers] = useState<string[]>([]);
+  const [transferSuggestions, setTransferSuggestions] = useState(initialTransferSuggestions);
 
   const filteredTransfers = transferSuggestions.filter(transfer => {
     const matchesStatus = statusFilter === "all" || transfer.status === statusFilter;
@@ -115,8 +117,37 @@ export function TransferSuggestions() {
     );
   };
 
+  const handleApproveTransfer = (transferId: string) => {
+    setTransferSuggestions(prev => prev.map(transfer => 
+      transfer.id === transferId ? { ...transfer, status: "approved" } : transfer
+    ));
+    toast({
+      title: "Transfer Approved",
+      description: `Transfer ${transferId} has been approved successfully`,
+    });
+  };
+
+  const handleRejectTransfer = (transferId: string) => {
+    setTransferSuggestions(prev => prev.map(transfer => 
+      transfer.id === transferId ? { ...transfer, status: "rejected" } : transfer
+    ));
+    toast({
+      title: "Transfer Rejected",
+      description: `Transfer ${transferId} has been rejected`,
+      variant: "destructive",
+    });
+  };
+
   const handleBulkApprove = () => {
-    console.log("Bulk approving transfers:", selectedTransfers);
+    setTransferSuggestions(prev => prev.map(transfer => 
+      selectedTransfers.includes(transfer.id) && transfer.status === "pending"
+        ? { ...transfer, status: "approved" }
+        : transfer
+    ));
+    toast({
+      title: "Bulk Approval Complete",
+      description: `${selectedTransfers.length} transfers have been approved`,
+    });
     setSelectedTransfers([]);
   };
 
@@ -157,7 +188,7 @@ export function TransferSuggestions() {
                 <ArrowRightLeft className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold">47</div>
+                <div className="text-2xl font-bold">{transferSuggestions.length}</div>
                 <div className="text-sm text-gray-600">Total Suggestions</div>
               </div>
             </div>
@@ -170,7 +201,7 @@ export function TransferSuggestions() {
                 <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold">23</div>
+                <div className="text-2xl font-bold">{transferSuggestions.filter(t => t.status === "approved").length}</div>
                 <div className="text-sm text-gray-600">Approved</div>
               </div>
             </div>
@@ -183,7 +214,7 @@ export function TransferSuggestions() {
                 <Clock className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold">18</div>
+                <div className="text-2xl font-bold">{transferSuggestions.filter(t => t.status === "pending").length}</div>
                 <div className="text-sm text-gray-600">Pending</div>
               </div>
             </div>
@@ -196,7 +227,7 @@ export function TransferSuggestions() {
                 <XCircle className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold">6</div>
+                <div className="text-2xl font-bold">{transferSuggestions.filter(t => t.status === "rejected").length}</div>
                 <div className="text-sm text-gray-600">Rejected</div>
               </div>
             </div>
@@ -266,10 +297,11 @@ export function TransferSuggestions() {
                 <tr>
                   <th className="py-3 px-4 text-left">
                     <Checkbox
-                      checked={selectedTransfers.length === filteredTransfers.length}
+                      checked={selectedTransfers.length === filteredTransfers.filter(t => t.status === "pending").length}
                       onCheckedChange={(checked) => {
+                        const pendingTransfers = filteredTransfers.filter(t => t.status === "pending");
                         if (checked) {
-                          setSelectedTransfers(filteredTransfers.map(t => t.id));
+                          setSelectedTransfers(pendingTransfers.map(t => t.id));
                         } else {
                           setSelectedTransfers([]);
                         }
@@ -294,6 +326,7 @@ export function TransferSuggestions() {
                       <Checkbox
                         checked={selectedTransfers.includes(transfer.id)}
                         onCheckedChange={() => handleSelectTransfer(transfer.id)}
+                        disabled={transfer.status !== "pending"}
                       />
                     </td>
                     <td className="py-3 px-4 font-mono text-sm">{transfer.id}</td>
@@ -342,10 +375,18 @@ export function TransferSuggestions() {
                       <div className="flex gap-1">
                         {transfer.status === "pending" && (
                           <>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                            <Button 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => handleApproveTransfer(transfer.id)}
+                            >
                               Approve
                             </Button>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleRejectTransfer(transfer.id)}
+                            >
                               Reject
                             </Button>
                           </>

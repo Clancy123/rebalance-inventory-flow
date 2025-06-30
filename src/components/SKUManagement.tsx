@@ -1,11 +1,19 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Archive, Plus, Upload } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Archive, Plus, Upload, Search } from "lucide-react";
+import { AddSKUModal } from "./AddSKUModal";
+import { useToast } from "@/hooks/use-toast";
 
 export function SKUManagement() {
-  const skus = [
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingSKU, setEditingSKU] = useState<any>(null);
+  const [skus, setSkus] = useState([
     {
       id: "A123",
       name: "Blue Cotton Shirt",
@@ -19,19 +27,75 @@ export function SKUManagement() {
       category: "Apparel",
       reorderPoint: 25,
       active: true
+    },
+    {
+      id: "C789",
+      name: "White Sneakers",
+      category: "Footwear",
+      reorderPoint: 20,
+      active: true
     }
-  ];
+  ]);
+
+  const filteredSKUs = skus.filter(sku => 
+    sku.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sku.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sku.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleAddSKU = (newSKU: any) => {
+    if (editingSKU) {
+      setSkus(prev => prev.map(sku => 
+        sku.id === editingSKU.id ? { ...newSKU } : sku
+      ));
+      setEditingSKU(null);
+    } else {
+      setSkus(prev => [...prev, newSKU]);
+    }
+  };
+
+  const handleEditSKU = (sku: any) => {
+    setEditingSKU(sku);
+    setShowAddModal(true);
+  };
+
+  const handleArchiveSKU = (skuId: string) => {
+    setSkus(prev => prev.map(sku => 
+      sku.id === skuId ? { ...sku, active: false } : sku
+    ));
+    toast({
+      title: "SKU Archived",
+      description: `SKU ${skuId} has been archived successfully`,
+    });
+  };
+
+  const handleUploadCSV = () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "File Selected",
+          description: `${file.name} selected for upload. CSV processing would be implemented here.`,
+        });
+      }
+    };
+    input.click();
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">SKU Management</h1>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleUploadCSV}>
             <Upload className="w-4 h-4 mr-2" />
             Upload CSV
           </Button>
-          <Button>
+          <Button onClick={() => setShowAddModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Add SKU
           </Button>
@@ -40,7 +104,18 @@ export function SKUManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Product Catalog</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <CardTitle>Product Catalog</CardTitle>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search SKUs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full sm:w-64"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -56,7 +131,7 @@ export function SKUManagement() {
                 </tr>
               </thead>
               <tbody>
-                {skus.map((sku) => (
+                {filteredSKUs.map((sku) => (
                   <tr key={sku.id} className="border-b">
                     <td className="py-3 font-mono">{sku.id}</td>
                     <td className="py-3">{sku.name}</td>
@@ -69,8 +144,17 @@ export function SKUManagement() {
                     </td>
                     <td className="py-3">
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Edit</Button>
-                        <Button variant="outline" size="sm">Archive</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEditSKU(sku)}>
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleArchiveSKU(sku.id)}
+                          disabled={!sku.active}
+                        >
+                          Archive
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -86,6 +170,16 @@ export function SKUManagement() {
         <h2 className="text-xl font-semibold text-gray-600 mb-2">Advanced SKU Management Coming Soon</h2>
         <p className="text-gray-500">Bulk operations, detailed product views, and inventory tracking per SKU.</p>
       </div>
+
+      <AddSKUModal
+        open={showAddModal}
+        onOpenChange={(open) => {
+          setShowAddModal(open);
+          if (!open) setEditingSKU(null);
+        }}
+        onSKUAdded={handleAddSKU}
+        editingSKU={editingSKU}
+      />
     </div>
   );
 }

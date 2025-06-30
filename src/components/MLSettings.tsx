@@ -1,8 +1,48 @@
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Cog, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function MLSettings() {
+  const { toast } = useToast();
+  const [isRetraining, setIsRetraining] = useState(false);
+
+  const handleUploadData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "Training Data Uploaded",
+          description: `${file.name} uploaded successfully. Model will be retrained with new data.`,
+        });
+      }
+    };
+    input.click();
+  };
+
+  const handleRetrainModel = async () => {
+    setIsRetraining(true);
+    
+    // Simulate model retraining
+    toast({
+      title: "Model Retraining Started",
+      description: "This process may take several minutes...",
+    });
+
+    setTimeout(() => {
+      setIsRetraining(false);
+      toast({
+        title: "Model Retrained Successfully",
+        description: "The forecasting model has been updated with the latest data.",
+      });
+    }, 3000);
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -66,11 +106,17 @@ export function MLSettings() {
             <span>30 days</span>
           </div>
           <div className="flex gap-2">
-            <Button>
+            <Button onClick={handleUploadData}>
               <Upload className="w-4 h-4 mr-2" />
               Upload Training Data
             </Button>
-            <Button variant="outline">Retrain Model</Button>
+            <Button 
+              variant="outline" 
+              onClick={handleRetrainModel}
+              disabled={isRetraining}
+            >
+              {isRetraining ? "Retraining..." : "Retrain Model"}
+            </Button>
           </div>
         </CardContent>
       </Card>
